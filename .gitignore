@@ -1,0 +1,6 @@
+.d
+Makefile
+config.log
+fail-inet
+*.conf
+*.o
