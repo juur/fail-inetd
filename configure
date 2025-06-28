@@ -160,11 +160,11 @@ echo "objdir = ${OBJDIR} / srcdir = ${SRCDIR}"
 
 # List of system headers we need to check for
 
-H_FILES="stdlib.h syslog.h err.h stdio.h ctype.h string.h strings.h regex.h stdbool.h sys/types.h unistd.h sys/stat.h fcntl.h signal.h sys/socket.h sys/un.h sys/wait.h time.h errno.h sys/select.h netdb.h netinet/in.h arpa/inet.h sys/time.h limits.h assert.h"
+H_FILES="stdbool.h unistd.h stdlib.h stdio.h err.h string.h strings.h netdb.h sys/types.h pwd.h sys/wait.h sys/socket.h sys/select.h sys/un.h errno.h syslog.h ctype.h fcntl.h wordexp.h"
 
 # List of system functions to check for function:arg0,arg1
 
-FUNC_CHECK="strptime:NULL,NULL,NULL err:0,NULL warn:NULL"
+FUNC_CHECK=""
 
 # List of pkg-config things to check for
 
@@ -303,9 +303,10 @@ done
 
 # Append any *DIR variables to config.h here
 
-if [[ FEATURE_INET -eq 1 ]]; then
-	echo "#define ENABLE_INET 1" >> "${OBJDIR}"/config.h
-fi
+#TODO features
+#if [[ FEATURE_INET -eq 1 ]]; then
+#	echo "#define ENABLE_INET 1" >> "${OBJDIR}"/config.h
+#fi
 
 # Create Makefile from template
 
