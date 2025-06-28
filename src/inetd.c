@@ -130,12 +130,20 @@ static bool master_running;
 
 static void show_version(FILE *fp)
 {
-    fprintf(fp, "fail_inet " VERSION "\n");
+    fprintf(fp,
+            "inetd " VERSION "\n"
+            "\n"
+            "Written by Ian Kirk");
 }
 
 static void show_usage(FILE *fp)
 {
-    fprintf(fp, "Usage: inetd [-dhv] [-f config file]\n"
+    fprintf(fp,
+            "inetd -- the internet \"super-server\"\n"
+            "\n"
+            "Usage: inetd [-dhv] [-f config file]\n"
+            "\n"
+            "Options:\n"
             "  -f file   load alternative config file\n"
             "  -h        show help\n"
             "  -v        show version\n"
