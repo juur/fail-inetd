@@ -19,6 +19,7 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include <wordexp.h>
+#include <grp.h>
 
 #include "config.h"
 
@@ -133,7 +134,7 @@ static void show_version(FILE *fp)
     fprintf(fp,
             "inetd " VERSION "\n"
             "\n"
-            "Written by Ian Kirk");
+            "Written by http://github.com/juur");
 }
 
 static void show_usage(FILE *fp)
@@ -232,6 +233,8 @@ static void free_svr_entry(struct svr_entry *entry)
         return NULL;
 
     ret->master = -1;
+    ret->uid = -1U;
+    ret->gid = -1U;
 
     return ret;
 }
@@ -538,17 +541,14 @@ static void def_signal_handler(int sig, siginfo_t *si, void *)
     }
 }
 
+/* indicated by POSIX but not defined, this is Linux's defintion */
+extern int setgroups(size_t size, const gid_t *);
+
 [[gnu::noreturn]] static void execute_child(const struct sockaddr_storage *, const char *cmd, const char *args)
 {
-    sigset_t sigset;
-    sigfillset(&sigset);
-    sigprocmask(SIG_UNBLOCK, &sigset, NULL);
-
-    struct sigaction def_act = { 0 };
-    def_act.sa_handler = SIG_DFL;
-    sigaction(SIGCHLD, &def_act, NULL);
-
     setsid();
+
+    setgroups(0, NULL);
 
     setvbuf(stdout, NULL, _IONBF, 0);
     setvbuf(stdin, NULL, _IONBF, 0);
@@ -818,6 +818,17 @@ fail_close_socket:
                 if ((child_ent->pid = child_pid = fork()) == 0) {
                     close(filedes[PIPE_READ]);
                     ent->master = -1;
+
+                    if (ent->gid != -1U)
+                        if (setgid(ent->gid) == -1) {
+                            syslog(LOG_ERR, "unable to setgid: %s", strerror(errno));
+                            goto close_child;
+                        }
+                    if (ent->uid != -1U) {
+                        setuid(ent->uid); 
+                        syslog(LOG_ERR, "unable to setuid: %s", strerror(errno));
+                        goto close_child;
+                    }
 
                     /* replace stdin, stdout and stderr */
                     dup2(new_fd, STDIN_FILENO);
